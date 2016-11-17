@@ -101,7 +101,7 @@ public class HookUtils {
                         String redPacketId = getObjectField(mQQWalletRedPacketMsg, "redPacketId").toString();
                         String authkey = (String) getObjectField(mQQWalletRedPacketMsg, "authkey");
                         ClassLoader walletClassLoader = (ClassLoader) callStaticMethod(findClass("com.tencent.mobileqq.pluginsdk.PluginStatic", loadPackageParam.classLoader), "getOrCreateClassLoader", globalContext, "qwallet_plugin.apk");
-                        String requestUrl = ("&uin=" + selfuin) +
+                        String requestUrl = "&uin=" + selfuin +
                                 "&listid=" + redPacketId +
                                 "&name=" + Uri.encode("") +
                                 "&answer=" +
@@ -180,7 +180,6 @@ public class HookUtils {
         if (TextUtils.isEmpty(wechatVersion)) {
             Context context = (Context) callMethod(callStaticMethod(findClass("android.app.ActivityThread", null), "currentActivityThread", new Object[0]), "getSystemContext", new Object[0]);
             String versionName = context.getPackageManager().getPackageInfo(lpparam.packageName, 0).versionName;
-            wechatVersion = versionName;
             VersionParam.init1(versionName);
         }
 
