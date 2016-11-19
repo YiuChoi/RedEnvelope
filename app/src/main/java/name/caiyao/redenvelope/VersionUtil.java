@@ -1,6 +1,6 @@
 package name.caiyao.redenvelope;
 
-public class VersionParam {
+public class VersionUtil {
 
     public static String receiveUIFunctionName = "c";
     public static String getNetworkByModelMethod = "vP";

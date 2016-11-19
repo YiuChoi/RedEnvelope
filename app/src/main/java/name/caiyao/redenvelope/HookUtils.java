@@ -64,7 +64,7 @@ public class HookUtils {
             Context context = (Context) callMethod(callStaticMethod(findClass("android.app.ActivityThread", null), "currentActivityThread", new Object[0]), "getSystemContext", new Object[0]);
             String versionName = context.getPackageManager().getPackageInfo(loadPackageParam.packageName, 0).versionName;
             qqVersion = versionName;
-            VersionParam.init(versionName);
+            VersionUtil.init(versionName);
         }
 
         findAndHookMethod("com.tencent.mobileqq.app.MessageHandlerUtils", loadPackageParam.classLoader, "a",
@@ -155,7 +155,7 @@ public class HookUtils {
                 }
         );
 
-        findAndHookMethod("com.tencent.mobileqq.activity.aio.item.QQWalletMsgItemBuilder", loadPackageParam.classLoader, "a", VersionParam.RedPacketDetailsViewHolderClass, "com.tencent.mobileqq.data.MessageForQQWalletMsg", "com.tencent.mobileqq.activity.aio.OnLongClickAndTouchListener",
+        findAndHookMethod("com.tencent.mobileqq.activity.aio.item.QQWalletMsgItemBuilder", loadPackageParam.classLoader, "a", VersionUtil.RedPacketDetailsViewHolderClass, "com.tencent.mobileqq.data.MessageForQQWalletMsg", "com.tencent.mobileqq.activity.aio.OnLongClickAndTouchListener",
                 new XC_MethodHook() {
                     int issend;
 
@@ -180,10 +180,10 @@ public class HookUtils {
         if (TextUtils.isEmpty(wechatVersion)) {
             Context context = (Context) callMethod(callStaticMethod(findClass("android.app.ActivityThread", null), "currentActivityThread", new Object[0]), "getSystemContext", new Object[0]);
             String versionName = context.getPackageManager().getPackageInfo(lpparam.packageName, 0).versionName;
-            VersionParam.init1(versionName);
+            VersionUtil.init1(versionName);
         }
 
-        findAndHookMethod(VersionParam.getMessageClass, lpparam.classLoader, "b", Cursor.class, new XC_MethodHook() {
+        findAndHookMethod(VersionUtil.getMessageClass, lpparam.classLoader, "b", Cursor.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 
@@ -208,13 +208,13 @@ public class HookUtils {
                     String sendId = nativeUrl.getQueryParameter("sendid");
                     final Object ab = newInstance(findClass("com.tencent.mm.plugin.luckymoney.c.ab", lpparam.classLoader),
                             msgType, channelId, sendId, nativeUrlString, "", "", talker, "v1.0");
-                    callMethod(callStaticMethod(findClass("com.tencent.mm.model.ah", lpparam.classLoader), VersionParam.getNetworkByModelMethod), "a", ab, 0);
+                    callMethod(callStaticMethod(findClass("com.tencent.mm.model.ah", lpparam.classLoader), VersionUtil.getNetworkByModelMethod), "a", ab, 0);
                 }
             }
         });
 
 
-        findAndHookMethod(LUCKY_MONEY_RECEIVE_UI_CLASS_NAME, lpparam.classLoader, VersionParam.receiveUIFunctionName, int.class, int.class, String.class, VersionParam.receiveUIParamName, new XC_MethodHook() {
+        findAndHookMethod(LUCKY_MONEY_RECEIVE_UI_CLASS_NAME, lpparam.classLoader, VersionUtil.receiveUIFunctionName, int.class, int.class, String.class, VersionUtil.receiveUIParamName, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 Button button = (Button) findFirstFieldByExactType(param.thisObject.getClass(), Button.class).get(param.thisObject);
