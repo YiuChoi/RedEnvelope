@@ -56,16 +56,11 @@ public class HookUtils {
     private static Object HotChatManager = null;
     private static Object TicketManager;
 
-    private static String qqVersion = "";
-    private static String wechatVersion = "";
 
     static void hookQQ(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
-        if (TextUtils.isEmpty(qqVersion)) {
-            Context context = (Context) callMethod(callStaticMethod(findClass("android.app.ActivityThread", null), "currentActivityThread", new Object[0]), "getSystemContext", new Object[0]);
-            String versionName = context.getPackageManager().getPackageInfo(loadPackageParam.packageName, 0).versionName;
-            qqVersion = versionName;
-            VersionUtil.init(versionName);
-        }
+        Context context = (Context) callMethod(callStaticMethod(findClass("android.app.ActivityThread", null), "currentActivityThread", new Object[0]), "getSystemContext", new Object[0]);
+        String versionName = context.getPackageManager().getPackageInfo(loadPackageParam.packageName, 0).versionName;
+        VersionUtil.init(versionName);
 
         findAndHookMethod("com.tencent.mobileqq.app.MessageHandlerUtils", loadPackageParam.classLoader, "a",
                 "com.tencent.mobileqq.app.QQAppInterface",
@@ -94,14 +89,11 @@ public class HookUtils {
                         }
                         msgUid = 0;
 
-                        int messageType = (int) XposedHelpers.getObjectField(param.thisObject, "messageType");
-                        //messageType == 6 口令
-
                         Object mQQWalletRedPacketMsg = getObjectField(param.thisObject, "mQQWalletRedPacketMsg");
                         String redPacketId = getObjectField(mQQWalletRedPacketMsg, "redPacketId").toString();
                         String authkey = (String) getObjectField(mQQWalletRedPacketMsg, "authkey");
                         ClassLoader walletClassLoader = (ClassLoader) callStaticMethod(findClass("com.tencent.mobileqq.pluginsdk.PluginStatic", loadPackageParam.classLoader), "getOrCreateClassLoader", globalContext, "qwallet_plugin.apk");
-                        String requestUrl = "&uin=" + selfuin +
+                        String requestUrl = ("&uin=" + selfuin) +
                                 "&listid=" + redPacketId +
                                 "&name=" + Uri.encode("") +
                                 "&answer=" +
@@ -110,7 +102,7 @@ public class HookUtils {
                                 "&groupuin=" + senderuin +
                                 "&authkey=" + authkey;
 
-                        Class qqplugin = findClass("com.tenpay.android.qqplugin.a.p", walletClassLoader);
+                        Class qqplugin = findClass(VersionUtil.QQPluginClass, walletClassLoader);
 
                         int random = Math.abs(new Random().nextInt()) % 16;
                         String reqText = (String) callStaticMethod(qqplugin, "a", globalContext, random, false, requestUrl);
@@ -120,7 +112,8 @@ public class HookUtils {
                                 "&skey_type=2" +
                                 "&skey=" + callMethod(TicketManager, "getSkey", selfuin);
 
-                        Object pickObject = newInstance(findClass("com.tenpay.android.qqplugin.b.d", walletClassLoader), callStaticMethod(qqplugin, "a", globalContext));
+                        Class<?> walletClass = findClass("com.tenpay.android.qqplugin.b.d", walletClassLoader);
+                        Object pickObject = newInstance(walletClass, callStaticMethod(qqplugin, "a", globalContext));
                         callMethod(pickObject, "a", hongbaoRequestUrl);
                     }
                 }
@@ -136,7 +129,10 @@ public class HookUtils {
                         globalContext = (Context) param.thisObject;
                     }
                 }
+
         );
+
+
         findAndHookConstructor("mqq.app.TicketManagerImpl", loadPackageParam.classLoader, "mqq.app.AppRuntime", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -153,35 +149,14 @@ public class HookUtils {
                         HotChatManager = param.thisObject;
                     }
                 }
-        );
-
-        findAndHookMethod("com.tencent.mobileqq.activity.aio.item.QQWalletMsgItemBuilder", loadPackageParam.classLoader, "a", VersionUtil.RedPacketDetailsViewHolderClass, "com.tencent.mobileqq.data.MessageForQQWalletMsg", "com.tencent.mobileqq.activity.aio.OnLongClickAndTouchListener",
-                new XC_MethodHook() {
-                    int issend;
-
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        issend = (int) getObjectField(param.args[1], "issend");
-                        if (issend != 1) {
-                            setObjectField(param.args[1], "issend", 1);
-                        }
-                    }
-
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        setObjectField(param.args[1], "issend", issend);
-                    }
-                }
 
         );
     }
 
     static void hookWechat(final XC_LoadPackage.LoadPackageParam lpparam) throws PackageManager.NameNotFoundException {
-        if (TextUtils.isEmpty(wechatVersion)) {
-            Context context = (Context) callMethod(callStaticMethod(findClass("android.app.ActivityThread", null), "currentActivityThread", new Object[0]), "getSystemContext", new Object[0]);
-            String versionName = context.getPackageManager().getPackageInfo(lpparam.packageName, 0).versionName;
-            VersionUtil.init1(versionName);
-        }
+        Context context = (Context) callMethod(callStaticMethod(findClass("android.app.ActivityThread", null), "currentActivityThread", new Object[0]), "getSystemContext", new Object[0]);
+        String versionName = context.getPackageManager().getPackageInfo(lpparam.packageName, 0).versionName;
+        VersionUtil.init1(versionName);
 
         findAndHookMethod(VersionUtil.getMessageClass, lpparam.classLoader, "b", Cursor.class, new XC_MethodHook() {
             @Override
